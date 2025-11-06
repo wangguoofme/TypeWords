@@ -17,7 +17,8 @@ function pathResolve(dir: string) {
 }
 
 const lifecycle = process.env.npm_lifecycle_event;
-let isCdnBuild = ['build', 'report'].includes(lifecycle)
+let isCdnBuild = ['build-oss', 'report-oss'].includes(lifecycle)
+let isAnalyseBuild = ['report-oss', 'report'].includes(lifecycle)
 
 // https://vitejs.dev/config/
 export default defineConfig(() => {
@@ -47,7 +48,7 @@ export default defineConfig(() => {
             },
           }),
           UnoCSS(),
-          lifecycle === 'report' ?
+          isAnalyseBuild ?
             visualizer({
               gzipSize: true,
               brotliSize: true,
