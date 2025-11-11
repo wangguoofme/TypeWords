@@ -1,9 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { login as loginApi, register as registerApi, logout as logoutApi, getUserInfo, resetPassword as resetPasswordApi, type LoginParams, type RegisterParams } from '@/apis/auth'
+import {
+  loginApi,
+  registerApi,
+  logoutApi,
+  getUserInfo,
+  resetPasswordApi,
+  type LoginParams,
+  type RegisterParams
+} from '@/apis/user.ts'
 import Toast from '@/components/base/toast/Toast.ts'
 import router from '@/router.ts'
-import {sleep} from "@/utils";
+
 export interface User {
   id: string
   email?: string
@@ -42,12 +50,10 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       isLoading.value = true
       const response = await loginApi(params)
-      
-      if (response.success && response.data) {
+      if (response.success) {
         setToken(response.data.token)
         setUser(response.data.user)
         Toast.success('登录成功')
-        
         // 跳转到首页或用户中心
         router.push('/')
         return true
@@ -73,7 +79,7 @@ export const useAuthStore = defineStore('auth', () => {
     } finally {
       clearToken()
       Toast.success('已退出登录')
-      router.push('/login')
+      router.push('/')
     }
   }
 
@@ -81,7 +87,7 @@ export const useAuthStore = defineStore('auth', () => {
   const fetchUserInfo = async () => {
     try {
       const response = await getUserInfo()
-      if (response.success && response.data) {
+      if (response.success) {
         setUser(response.data)
         return true
       }
@@ -97,12 +103,12 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       isLoading.value = true
       const response = await registerApi(params)
-      
+
       if (response.success && response.data) {
         setToken(response.data.token)
         setUser(response.data.user)
         Toast.success('注册成功')
-        
+
         // 跳转到首页或用户中心
         router.push('/')
         return true
@@ -124,16 +130,16 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       isLoading.value = true
       const response = await resetPasswordApi(params)
-      
+
       if (response.success) {
         Toast.success('密码重置成功')
-        return { success: true, msg: '密码重置成功' }
+        return {success: true, msg: '密码重置成功'}
       } else {
-        return { success: false, msg: response.msg || '重置失败' }
+        return {success: false, msg: response.msg || '重置失败'}
       }
     } catch (error) {
       console.error('Reset password error:', error)
-      return { success: false, msg: '重置密码失败，请重试' }
+      return {success: false, msg: '重置密码失败，请重试'}
     } finally {
       isLoading.value = false
     }

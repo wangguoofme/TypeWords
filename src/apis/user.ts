@@ -1,11 +1,12 @@
 import http from '@/utils/http.ts'
+
 // 用户登录接口
 export interface LoginParams {
-  email?: string
-  phone?: string
+  account?: string
   password?: string
+  phone?: string
   code?: string
-  type: 'email' | 'phone' | 'wechat'
+  type: 'code' | 'pwd'
 }
 
 export interface LoginResponse {
@@ -61,28 +62,28 @@ export interface WechatLoginParams {
 }
 
 // API 函数定义
-export function login(params: LoginParams) {
+export function loginApi(params: LoginParams) {
   // 暂时直接返回成功响应，等待后端接入
-  return Promise.resolve({
-    success: true,
-    code: 200,
-    msg: '登录成功',
-    data: {
-      token: 'mock_token_' + Date.now(),
-      user: {
-        id: '1',
-        email: params.email,
-        phone: params.phone,
-        nickname: '测试用户',
-        avatar: ''
-      }
-    }
-  })
-  // return http<LoginResponse>('auth/login', params, null, 'post')
+  // return Promise.resolve({
+  //   success: true,
+  //   code: 200,
+  //   msg: '登录成功',
+  //   data: {
+  //     token: 'mock_token_' + Date.now(),
+  //     user: {
+  //       id: '1',
+  //       account: params.account ?? 'account',
+  //       phone: params.phone ?? 'phone',
+  //       nickname: '测试用户',
+  //       avatar: ''
+  //     }
+  //   }
+  // })
+  return http<LoginResponse>('user/login', params, null, 'post')
 }
 
-export function register(params: RegisterParams) {
-  return http<RegisterResponse>('auth/register', params, null, 'post')
+export function registerApi(params: RegisterParams) {
+  return http<RegisterResponse>('user/register', params, null, 'post')
 }
 
 export function sendCode(params: SendCodeParams) {
@@ -91,26 +92,26 @@ export function sendCode(params: SendCodeParams) {
     code: 200,
     msg: '登录成功',
   })
-  return http<boolean>('auth/sendCode', params, null, 'post')
+  return http<boolean>('user/sendCode', params, null, 'post')
 }
 
-export function resetPassword(params: ResetPasswordParams) {
-  return http<boolean>('auth/resetPassword', params, null, 'post')
+export function resetPasswordApi(params: ResetPasswordParams) {
+  return http<boolean>('user/resetPassword', params, null, 'post')
 }
 
 export function wechatLogin(params: WechatLoginParams) {
-  return http<LoginResponse>('auth/wechatLogin', params, null, 'post')
+  return http<LoginResponse>('user/wechatLogin', params, null, 'post')
 }
 
-export function logout() {
-  return http<boolean>('auth/logout', null, null, 'post')
+export function logoutApi() {
+  return http<boolean>('user/logout', null, null, 'post')
 }
 
 export function refreshToken() {
-  return http<{ token: string }>('auth/refreshToken', null, null, 'post')
+  return http<{ token: string }>('user/refreshToken', null, null, 'post')
 }
 
 // 获取用户信息
 export function getUserInfo() {
-  return http<LoginResponse['user']>('auth/userInfo', null, null, 'get')
+  return http<LoginResponse['user']>('user/userInfo', null, null, 'get')
 }

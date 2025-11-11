@@ -12,8 +12,6 @@ import BookList from "@/pages/article/BookList.vue";
 import Setting from "@/pages/setting/Setting.vue";
 import Login from "@/pages/user/login.vue";
 import User from "@/pages/user/index.vue";
-import UserAgreement from "@/pages/user/UserAgreement.vue";
-import PrivacyPolicy from "@/pages/user/PrivacyPolicy.vue";
 import { useAuthStore } from "@/stores/auth.ts";
 
 export const routes: RouteRecordRaw[] = [
@@ -38,8 +36,6 @@ export const routes: RouteRecordRaw[] = [
       {path: 'setting', component: Setting},
       {path: 'login', component: Login},
       {path: 'user', component: User},
-      {path: 'user-agreement', component: UserAgreement},
-      {path: 'privacy-policy', component: PrivacyPolicy},
     ]
   },
   {path: '/batch-edit-article', component: () => import("@/pages/article/BatchEditArticlePage.vue")},

@@ -48,7 +48,7 @@ export function addDict(params?, data?) {
   return http<Dict>('dict/addDict', remove(data), remove(params), 'post')
 }
 
-export function uploadImportData(data,onUploadProgress) {
+export function uploadImportData(data, onUploadProgress) {
   return axiosInstance({
     url: 'dict/uploadImportData',
     method: 'post',
@@ -60,5 +60,7 @@ export function uploadImportData(data,onUploadProgress) {
   })
 }
 
-// 导出认证相关API
-export * from './auth'
+// 查询导入进度，status: 0=导入中, 1=完成, 2=失败
+export function getProgress(params?) {
+  return http<{ status: number; reason: string }>('dict/getProgress', null, params, 'get')
+}
