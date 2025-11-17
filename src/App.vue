@@ -229,6 +229,29 @@ onMounted(() => {
     };
   }
 
+
+  // if (!OLD_ORIGIN){
+  //   var OLD_ORIGIN = "https://2study.top";
+  // }
+  // // 创建隐藏 iframe
+  // const iframe = document.createElement("iframe");
+  // iframe.style.display = "none";
+  // iframe.src = `${OLD_ORIGIN}/migrate.html`;
+  // document.body.appendChild(iframe);
+  // // 接收旧域名的数据
+  // window.addEventListener("message", async (event) => {
+  //   if (event.data.type !== "MIGRATE_RESULT") return;
+  //   const payload = event.data.payload;
+  //   console.log('payload', payload)
+  // });
+  //
+  // iframe.onload = function () {
+  //   setTimeout(()=>{
+  //     iframe.contentWindow.postMessage({type: "REQUEST_MIGRATION_DATA"}, OLD_ORIGIN);
+  //   },3000)
+  // };
+
+
 // 使用示例（在老域名 2study.top 的控制台执行）：
 //   readAllStorageForMigration().then(result => {
 //     console.log('读取到的数据：', result);
@@ -236,6 +259,7 @@ onMounted(() => {
 //     console.error('读取失败：', err);
 //   });
 })
+
 
 // let transitionName = $ref('go')
 // const route = useRoute()

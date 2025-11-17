@@ -1,13 +1,25 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>TypeWords 数据迁移</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        button { padding: 10px 20px; font-size: 16px; }
-        pre { background: #f7f7f7; padding: 10px; border-radius: 4px; }
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        pre {
+            background: #f7f7f7;
+            padding: 10px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -21,10 +33,40 @@
     document.getElementById('log').textContent += msg + "\n";
   }
 
+  let dbReadyPromise = null;
+  let name = 'keyval-store';
+
+  function openDB(dbName, keys) {
+    if (dbReadyPromise) return dbReadyPromise;
+
+    dbReadyPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(dbName, 1);
+
+      request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+
+        keys.forEach((name) => {
+          if (!db.objectStoreNames.contains(name)) {
+            db.createObjectStore(name);
+          }
+        });
+      };
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+
+    return dbReadyPromise;
+  }
+
+  openDB(name)
+
   // --- localStorage 读取 ---
   function readLocalStorageKeys(keys) {
     const out = {};
-    keys.forEach(k => { out[k] = localStorage.getItem(k); });
+    keys.forEach(k => {
+      out[k] = localStorage.getItem(k);
+    });
     return out;
   }
 
@@ -35,39 +77,36 @@
     'typing-word-setting',
     'typing-word-files'
   ]) {
-    return new Promise((resolve) => {
-      const openReq = indexedDB.open(dbName);
+    return new Promise(async (resolve) => {
+      const db = await openDB(dbName, keys);
+      const stores = Array.from(db.objectStoreNames);
 
-      openReq.onerror = tryOpenKeyvalDefault;
+      if (stores.length === 0) {
+        db.close();
+        tryOpenKeyvalDefault();
+        return;
+      }
 
-      openReq.onsuccess = function () {
-        const db = openReq.result;
-        const stores = Array.from(db.objectStoreNames);
-
-        if (stores.length === 0) {
+      if (stores.length === 1 && stores[0] === 'keyval') {
+        readFromKeyvalDB(db).then(result => {
           db.close();
-          tryOpenKeyvalDefault();
-          return;
-        }
-
-        if (stores.length === 1 && stores[0] === 'keyval') {
-          readFromKeyvalDB(db).then(result => {
-            db.close(); resolve(result);
-          });
-        } else {
-          readFromMultipleStores(db, stores).then(result => {
-            db.close(); resolve(result);
-          });
-        }
-      };
+          resolve(result);
+        });
+      } else {
+        readFromMultipleStores(db, stores).then(result => {
+          db.close();
+          resolve(result);
+        });
+      }
 
       function tryOpenKeyvalDefault() {
         const req = indexedDB.open('keyval');
-        req.onerror = () => resolve({ indexedDB: {}, reason: 'no-db' });
+        req.onerror = () => resolve({indexedDB: {}, reason: 'no-db'});
         req.onsuccess = function () {
           const db2 = req.result;
           readFromKeyvalDB(db2).then(result => {
-            db2.close(); resolve(result);
+            db2.close();
+            resolve(result);
           });
         };
       }
@@ -83,11 +122,11 @@
             const r = store.get(k);
             r.onsuccess = () => {
               out[k] = r.result ?? null;
-              if (++finished === keys.length) res({ indexedDB: out });
+              if (++finished === keys.length) res({indexedDB: out});
             };
             r.onerror = () => {
               out[k] = null;
-              if (++finished === keys.length) res({ indexedDB: out });
+              if (++finished === keys.length) res({indexedDB: out});
             };
           });
         });
@@ -105,15 +144,15 @@
 
               req.onsuccess = () => {
                 result[storeName] = req.result;
-                if (++count === stores.length) res({ indexedDB: result });
+                if (++count === stores.length) res({indexedDB: result});
               };
               req.onerror = () => {
                 result[storeName] = [];
-                if (++count === stores.length) res({ indexedDB: result });
+                if (++count === stores.length) res({indexedDB: result});
               };
             } catch {
               result[storeName] = [];
-              if (++count === stores.length) res({ indexedDB: result });
+              if (++count === stores.length) res({indexedDB: result});
             }
           });
         });
@@ -123,8 +162,8 @@
 
   async function readAllStorageForMigration() {
     const local = readLocalStorageKeys(['PracticeSaveWord', 'PracticeSaveArticle']);
-    const indexed = await readIndexedDBCompatible('keyval-store');
-    return { localStorage: local, indexedDB: indexed.indexedDB ?? {} };
+    const indexed = await readIndexedDBCompatible(name);
+    return {localStorage: local, indexedDB: indexed.indexedDB ?? {}};
   }
 
   // =====================
@@ -136,7 +175,7 @@
       const data = await readAllStorageForMigration();
       log('读取完成，开始发送数据到新域名');
 
-      event.source.postMessage({ type: 'MIGRATE_DATA', payload: data }, event.origin);
+      event.source.postMessage({type: 'MIGRATE_DATA', payload: data}, event.origin);
 
       log('已发送迁移数据');
     }
