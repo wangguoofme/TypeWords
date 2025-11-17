@@ -1,13 +1,13 @@
-import { BaseState, DefaultBaseState, useBaseStore } from "@/stores/base.ts";
-import { getDefaultSettingState, SettingState } from "@/stores/setting.ts";
-import { Dict, DictId, DictResource, DictType } from "@/types/types.ts";
-import { useRouter } from "vue-router";
-import { useRuntimeStore } from "@/stores/runtime.ts";
+import {BaseState, DefaultBaseState, useBaseStore} from "@/stores/base.ts";
+import {getDefaultSettingState, SettingState} from "@/stores/setting.ts";
+import {Dict, DictId, DictResource, DictType} from "@/types/types.ts";
+import {useRouter} from "vue-router";
+import {useRuntimeStore} from "@/stores/runtime.ts";
 import dayjs from 'dayjs'
-import { AppEnv, RESOURCE_PATH, SAVE_DICT_KEY, SAVE_SETTING_KEY } from "@/config/env.ts";
-import { nextTick } from "vue";
+import {AppEnv, RESOURCE_PATH, SAVE_DICT_KEY, SAVE_SETTING_KEY} from "@/config/env.ts";
+import {nextTick} from "vue";
 import Toast from '@/components/base/toast/Toast.ts'
-import { getDefaultDict, getDefaultWord } from "@/types/func.ts";
+import {getDefaultDict, getDefaultWord} from "@/types/func.ts";
 import duration from "dayjs/plugin/duration";
 
 dayjs.extend(duration);
@@ -242,7 +242,7 @@ export function convertToWord(raw: any) {
 
   // 1. trans
   const trans = safeSplit(raw.trans, '\n').map(line => {
-    const match = line.match(/^([^\s.]+\.?)\s*(.*)$/);
+    const match = safeString(line).match(/^([^\s.]+\.?)\s*(.*)$/);
     if (match) {
       let pos = safeString(match[1]);
       let cn = safeString(match[2]);
