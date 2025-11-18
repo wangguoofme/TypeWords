@@ -10,6 +10,8 @@ const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue
 
 const model = defineModel()
 
+const emit = defineEmits<{ ok: [] }>()
+
 async function migrateFromOldSite() {
   return new Promise(async (resolve, reject) => {
     // 旧域名地址
@@ -79,6 +81,8 @@ async function transfer() {
     console.log('迁移完成');
     Toast.success('迁移完成')
     model.value = false
+    emit('ok')
+
   } catch (e) {
     Toast.error('迁移失败：' + e)
     console.error('迁移失败', e);
@@ -93,7 +97,7 @@ async function transfer() {
         本网站已启用新域名 <span class="color-blue">{{ Origin }}</span>
       </h2>
       <h3>
-        由于浏览器安全限制，新老网站数据无法互通，需要您手动点击转移数据
+        老域名即将停用，由于浏览器安全限制，新老网站数据无法互通，需要您手动点击转移数据
       </h3>
       <h3>
         <BaseButton

@@ -78,7 +78,6 @@ async function init() {
 
 onMounted(init)
 
-
 //迁移数据
 let showTransfer = $ref(false)
 onMounted(() => {
@@ -122,5 +121,8 @@ onMounted(() => {
   <!--    </transition>-->
   <!--  </router-view>-->
   <router-view></router-view>
-  <MigrateDialog v-model="showTransfer"/>
+  <MigrateDialog
+    v-model="showTransfer"
+    @ok="init"
+  />
 </template>
